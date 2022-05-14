@@ -35,7 +35,7 @@ async def main(token):
           asyncio.ensure_future(heartbeat(ws, data['d']['heartbeat_interval']))
         elif data["op"] == 0:
           if data['t'] == 'MESSAGE_CREATE':
-            if data['d']['content'] == "help":
+            if data['d']['content'] == "$help":
               await ctx.send("```Commands\nNone yet```")
 
 loop = asyncio.get_event_loop()
