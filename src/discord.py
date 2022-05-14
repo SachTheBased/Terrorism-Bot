@@ -20,9 +20,9 @@ class Context:
   async def delete_message(self):
     async with aiohttp.ClientSession() as session:
       while True:
-        async with session.delete(f'{self.api}/channels/{self.context["d"]["channel_id"]}/messages/{self.context["d"]["id"]}', headers = self.headers) as message:
-          if message.status == 429:
-            message = await message.json()
-            asyncio.sleep(message['retry_after'])
+        async with session.delete(f'{self.api}/channels/{self.context["d"]["channel_id"]}/messages/{self.context["d"]["id"]}', headers = self.headers) as delete:
+          if delete.status == 429:
+            delete = await delete.json()
+            asyncio.sleep(delete['retry_after'])
           else:
             break

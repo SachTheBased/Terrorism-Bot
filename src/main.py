@@ -11,9 +11,11 @@ except:
   import asyncio
 
 token = input("Enter token: ")
-id = input("Enter your id: ")
 headers = {"Authorization": token}
 vanity = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
+
+try: os.system('clear')
+except: os.system('cls')
 
 print("""Welcome to Terrorism SB!!!
 
@@ -36,11 +38,18 @@ async def main(token):
         if data["op"] == 10:
           asyncio.ensure_future(heartbeat(ws, data['d']['heartbeat_interval']))
         elif data["op"] == 0:
-          if data['t'] == 'MESSAGE_CREATE' and data['d']['author']['id']:
+          if data['t'] == 'MESSAGE_CREATE':
             if data['d']['content'].startswith("$help"):
               await ctx.delete_message()
               if len(data['d']['content'].split()) == 1:
-                await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/main_.html")
+                await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/_main_.html")
+              else:
+                if data['d']['content'].split()[1].lower() == 'exploits' or data['d']['content'].split()[1].lower() == 'exp' or data['d']['content'].split()[1].lower() == 'exploit':
+                  await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/exploits.html")
+                elif data['d']['content'].split()[1].lower() == 'utilities' or data['d']['content'].split()[1].lower() == 'utils' or data['d']['content'].split()[1].lower() == 'util' or data['d']['content'].split()[1].lower() == 'utility':
+                  await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/utils.html")
+                elif data['d']['content'].split()[1].lower() == 'nuke':
+                  await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/nuke.html")
         
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main(token))
