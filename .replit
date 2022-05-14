@@ -1,4 +1,4 @@
 language = "python3"
-run = "src/main.py"
+run = "main.py"
 
 guessImports = false
