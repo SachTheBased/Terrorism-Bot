@@ -26,3 +26,28 @@ class Context:
             asyncio.sleep(delete['retry_after'])
           else:
             break
+
+class User:
+  def __init__ (self, headers):
+    self.headers = headers
+    self.api = "https://discord.com/api/v9"
+
+  async def get_channels(self):
+    async with aiohttp.ClientSession() as session:
+      while True:
+        async with session.get(f"{self.api}/users/@me/channels", headers = self.headers) as ch:
+          if ch.status == 429:
+            ch = await ch.json()
+            asyncio.sleep(ch['retry_after'])
+          else:
+            return await ch.json()
+
+  def delete_channel(self, id):
+    async with aiohttp.ClientSession() as session:
+      while True:
+        async with session.delete(f"{self.api}/users/@me/channels/{id}", headers = self.headers) as ch:
+          if ch.status == 429:
+            ch = await ch.json()
+            asyncio.sleep(ch['retry_after'])
+          else:
+            break
