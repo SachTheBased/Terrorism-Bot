@@ -37,7 +37,6 @@ async def main(token):
       async for messages in ws:
         data = json.loads(messages.data)
         ctx = discord.Context(json.loads(messages.data), headers = headers)
-        
         if data["op"] == 10:
           asyncio.ensure_future(heartbeat(ws, data['d']['heartbeat_interval']))
         elif data["op"] == 0:
@@ -66,17 +65,19 @@ async def main(token):
                     tasks.append(asyncio.create_task(sachs.delete_channel(dm['id'])))
                   await asyncio.gather(*tasks)
             elif data['d']['content'].startswith("$spam"):
+              content = 7 + len(data['d']['content'].split()[1])
               if data['d']['content'].split()[1] == 'inf':
                 while True:
                   tasks = []
                   for i in range(7):
-                    tasks.append(asyncio.create_task(ctx.send("test")))
+                    tasks.append(asyncio.create_task(ctx.send(data['d']['content'][content:])))
                   await asyncio.gather(*tasks)
               else:
                 tasks = []
                 for i in range(int(data['d']['content'].split()[1])):
-                  tasks.append(asyncio.create_task(ctx.send("test")))
+                  tasks.append(asyncio.create_task(ctx.send(data['d']['content'][content:])))
                 await asyncio.gather(*tasks)
+            
         
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main(token))
