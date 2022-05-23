@@ -9,7 +9,7 @@ except:
   os.system("pip install aiohttp")
   import aiohttp
   import asyncio
-
+with open('settings.json', 'r') as f: settings = json.load(f)
 token = input("Enter token: ")
 headers = {"Authorization": token}
 sachs = discord.User(headers)
@@ -18,11 +18,11 @@ vanity = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||
 try: os.system('clear')
 except: os.system('cls')
 
-print("""Welcome to Terrorism SB!!!
+print(f"""Welcome to Terrorism SB!!!
 
-Prefix -> $
+Prefix -> {settings['Prefix']}
       
-Devs Against Nukers""")
+Devs Against Nukers <3""")
 
 async def heartbeat(ws, interval):
   while True:
@@ -41,7 +41,7 @@ async def main(token):
           asyncio.ensure_future(heartbeat(ws, data['d']['heartbeat_interval']))
         elif data["op"] == 0:
           if data['t'] == 'MESSAGE_CREATE':
-            if data['d']['content'].startswith("$help"):
+            if data['d']['content'].startswith(f"{settings['Prefix']}help"):
               await ctx.delete_message()
               if len(data['d']['content'].split()) == 1:
                 await ctx.send(f"{vanity}https://tt.sachsthebased.repl.co/help/_main_.html")
@@ -64,7 +64,8 @@ async def main(token):
                   for dm in dms:
                     tasks.append(asyncio.create_task(sachs.delete_channel(dm['id'])))
                   await asyncio.gather(*tasks)
-            elif data['d']['content'].startswith("$spam"):
+            elif data['d']['content'].startswith(f"{settings['Prefix']}spam"):
+              await ctx.delete_message()
               content = 7 + len(data['d']['content'].split()[1])
               if data['d']['content'].split()[1] == 'inf':
                 while True:
@@ -77,6 +78,10 @@ async def main(token):
                 for i in range(int(data['d']['content'].split()[1])):
                   tasks.append(asyncio.create_task(ctx.send(data['d']['content'][content:])))
                 await asyncio.gather(*tasks)
+            elif data['d']['content'].startswith(f"{settings['Prefix']}purge"):
+              await ctx.delete_message()
+              await ctx.purge(int(data['d']['content'].split()[1]))
+            
             
         
 loop = asyncio.get_event_loop()
