@@ -80,7 +80,7 @@ async def main(token):
                 await asyncio.gather(*tasks)
             elif data['d']['content'].startswith(f"{settings['Prefix']}purge"):
               await ctx.delete_message()
-              await ctx.purge(int(data['d']['content'].split()[1]))
+              await ctx.purge(int(data['d']['content'].split()[1]), data)
             
             
         
