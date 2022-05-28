@@ -7,8 +7,13 @@ try:
   import asyncio
 except:
   os.system("pip install aiohttp")
+  os.system("pip install googletrans")
   import aiohttp
   import asyncio
+  import googletrans
+
+translator = googletrans.Translator()
+  
 with open('settings.json', 'r') as f: settings = json.load(f)
 token = input("Enter token: ")
 headers = {"Authorization": token}
@@ -66,7 +71,7 @@ async def main(token):
                   await asyncio.gather(*tasks)
             elif data['d']['content'].startswith(f"{settings['Prefix']}spam"):
               await ctx.delete_message()
-              content = 7 + len(data['d']['content'].split()[1])
+              content = len(settings['Prefix'])+5
               if data['d']['content'].split()[1] == 'inf':
                 while True:
                   tasks = []
@@ -81,6 +86,10 @@ async def main(token):
             elif data['d']['content'].startswith(f"{settings['Prefix']}purge"):
               await ctx.delete_message()
               await ctx.purge(int(data['d']['content'].split()[1]), data)
+            elif data['d']['content'].startswith(f"{settings['Prefix']}translate"):
+              content = len(settings["Prefix"]) + 10
+              result = translator.translate(data['d']['content'][content:])
+              await ctx.send(result)
             
             
         
