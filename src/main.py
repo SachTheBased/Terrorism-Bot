@@ -1,23 +1,17 @@
 import os
 import json
+import aiohttp
+import asyncio
+#import googletrans
+from colorama import Fore
 
-try:
-    import aiohttp
-    import asyncio
-    import googletrans
-except:
-    os.system("pip install aiohttp")
-    os.system("pip install googletrans")
-    import aiohttp
-    import asyncio
-    import googletrans
+token = input("Enter token: ")  # or you can change this to your token
 
-translator = googletrans.Translator()
-
-with open('settings.json', 'r') as f: settings = json.load(f)
-token = input("Enter token: ")
+# Setup variables
 headers = {"Authorization": token}
 api = "https://discord.com/api/v9"
+#translator = googletrans.Translator()
+with open('settings.json', 'r') as f: settings = json.load(f)
 vanity = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
 
 try:
@@ -25,18 +19,28 @@ try:
 except:
     os.system('cls')
 
-print(f"""Welcome to Terrorism SB!!!
-
-Prefix -> {settings['Prefix']}
-
-Devs Against Nukers <3""")
+print(f"""{Fore.MAGENTA}████████╗███████╗██████╗ ██████╗  ██████╗ ██████╗ ██╗███████╗███╗   ███╗    ███████╗██████╗ 
+{Fore.LIGHTMAGENTA_EX}╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██║██╔════╝████╗ ████║    ██╔════╝██╔══██╗
+{Fore.BLUE}   ██║   █████╗  ██████╔╝██████╔╝██║   ██║██████╔╝██║███████╗██╔████╔██║    ███████╗██████╔╝
+{Fore.LIGHTBLUE_EX}   ██║   ██╔══╝  ██╔══██╗██╔══██╗██║   ██║██╔══██╗██║╚════██║██║╚██╔╝██║    ╚════██║██╔══██╗
+{Fore.CYAN}   ██║   ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║██║███████║██║ ╚═╝ ██║    ███████║██████╔╝
+{Fore.LIGHTCYAN_EX}   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝╚═╝     ╚═╝    ╚══════╝╚═════╝ """)
 
 
 async def send(data, session, content):
     while True:
-        async with session.post(f"{api}/channels/{data['d']['channel_id']}/messages", headers=headers,
-                                data={'content': content}) as msg:
-            if msg.status_code == 429:
+        async with session.post(f"{api}/channels/{data['d']['channel_id']}/messages", headers=headers, data={'content': content}) as msg:
+            if msg.status == 429:
+                msg = await msg.json()
+                await asyncio.sleep(msg['retry_after'])
+            else:
+                break
+
+
+async def delete_message(data, session):
+    while True:
+        async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{data['d']['id']}", headers=headers) as msg:
+            if msg.status == 429:
                 msg = await msg.json()
                 await asyncio.sleep(msg['retry_after'])
             else:
@@ -53,8 +57,7 @@ async def main(token):
     async with aiohttp.ClientSession() as session:
         # Yes I use v6, cope harder you discord.py coders
         async with session.ws_connect("wss://gateway.discord.gg?v=6&encoding=json") as ws:
-            await ws.send_json({"op": 2, "d": {"token": token, "properties": {"$os": "linux", "$browser": "my_library",
-                                                                              "$device": "my_library"}}})
+            await ws.send_json({"op": 2, "d": {"token": token, "properties": {"$os": "linux", "$browser": "my_library","$device": "my_library"}}})
             async for messages in ws:
 
                 data = json.loads(messages.data)
@@ -65,7 +68,7 @@ async def main(token):
                     if data['t'] == 'MESSAGE_CREATE':
                         content = data['d']['content']
                         if content.startswith(f"{settings['Prefix']}help"):
-
+                            await delete_message(data, session)
                             if len(content.split()) == 1:
                                 await send(data, session, f"{vanity}https://tt.sachsthebased.repl.co/help/_main_.html")
                             else:
@@ -77,7 +80,8 @@ async def main(token):
                                     pass
 
                         elif content.startswith(f"{settings['Prefix']}spam"):
-                            msgC = len(data['d']['content'].split()[1]) + len(settings['prefix']) + 5
+                            await delete_message(data, session)
+                            msgC = len(data['d']['content'].split()[1]) + len(settings['Prefix']) + 5
                             if content.split()[1] == 'inf':
                                 while True:
                                     tasks = []
