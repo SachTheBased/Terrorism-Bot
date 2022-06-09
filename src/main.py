@@ -19,13 +19,18 @@ try:
 except:
     os.system('cls')
 
-print(f"""{Fore.MAGENTA}████████╗███████╗██████╗ ██████╗  ██████╗ ██████╗ ██╗███████╗███╗   ███╗    ███████╗██████╗ 
-{Fore.LIGHTMAGENTA_EX}╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██║██╔════╝████╗ ████║    ██╔════╝██╔══██╗
-{Fore.BLUE}   ██║   █████╗  ██████╔╝██████╔╝██║   ██║██████╔╝██║███████╗██╔████╔██║    ███████╗██████╔╝
-{Fore.LIGHTBLUE_EX}   ██║   ██╔══╝  ██╔══██╗██╔══██╗██║   ██║██╔══██╗██║╚════██║██║╚██╔╝██║    ╚════██║██╔══██╗
-{Fore.CYAN}   ██║   ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║██║███████║██║ ╚═╝ ██║    ███████║██████╔╝
-{Fore.LIGHTCYAN_EX}   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝╚═╝     ╚═╝    ╚══════╝╚═════╝ """)
+def process_user(user):
+    return user.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('?', '').replace('&', '')
 
+async def user():
+    async with aiohttp.ClientSession() as session:
+        while True:
+            async with session.get(f"{api}/users/@me", headers=headers) as usr:
+                if usr.status == 429:
+                    usr = await usr.json()
+                    await asyncio.sleep(usr['retry_after'])
+                else:
+                    return await usr.json()
 
 async def send(data, session, content):
     while True:
@@ -46,6 +51,30 @@ async def delete_message(data, session):
             else:
                 break
 
+async def purge(data, session, amount):
+    count = 0
+    while True:
+        async with session.get(f"{api}/channels/{data['d']['channel_id']}/messages?limit=100", headers=headers) as prg:
+            if prg.status == 429:
+                prg = await prg.json()
+                await asyncio.sleep(prg['retry_after'])
+            else:
+                prg = await prg.json()
+                break
+
+    for msg in prg:
+        if msg['author']['id'] == data['d']['author']['id']:
+            async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{msg['id']}",headers=headers) as msg:
+                print(await msg.json())
+                if msg.status == 429:
+                    msg = await msg.json()
+                    await asyncio.sleep(msg['retry_after'])
+                else:
+                    break
+            count+=1
+
+        if count >= amount:
+            break
 
 async def heartbeat(ws, interval):
     while True:
@@ -54,6 +83,15 @@ async def heartbeat(ws, interval):
 
 
 async def main(token):
+    usr = await user()
+    print(f"""{Fore.MAGENTA}████████╗███████╗██████╗ ██████╗  ██████╗ ██████╗ ██╗███████╗███╗   ███╗    ███████╗██████╗ 
+{Fore.LIGHTMAGENTA_EX}╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██║██╔════╝████╗ ████║    ██╔════╝██╔══██╗
+{Fore.BLUE}   ██║   █████╗  ██████╔╝██████╔╝██║   ██║██████╔╝██║███████╗██╔████╔██║    ███████╗██████╔╝
+{Fore.LIGHTBLUE_EX}   ██║   ██╔══╝  ██╔══██╗██╔══██╗██║   ██║██╔══██╗██║╚════██║██║╚██╔╝██║    ╚════██║██╔══██╗
+{Fore.CYAN}   ██║   ███████╗██║  ██║██║  ██║╚██████╔╝██║  ██║██║███████║██║ ╚═╝ ██║    ███████║██████╔╝
+{Fore.LIGHTCYAN_EX}   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝╚═╝     ╚═╝    ╚══════╝╚═════╝ 
+   Prefix is {settings['Prefix']}
+{Fore.LIGHTGREEN_EX}   Connected to {usr['username']}#{usr['discriminator']}{Fore.RESET}""")
     async with aiohttp.ClientSession() as session:
         # Yes I use v6, cope harder you discord.py coders
         async with session.ws_connect("wss://gateway.discord.gg?v=6&encoding=json") as ws:
@@ -64,9 +102,11 @@ async def main(token):
 
                 if data["op"] == 10:
                     asyncio.ensure_future(heartbeat(ws, data['d']['heartbeat_interval']))
+
                 elif data["op"] == 0:
-                    if data['t'] == 'MESSAGE_CREATE':
+                    if data['t'] == 'MESSAGE_CREATE' and data['d']['author']['id'] == usr['id']:
                         content = data['d']['content']
+
                         if content.startswith(f"{settings['Prefix']}help"):
                             await delete_message(data, session)
                             if len(content.split()) == 1:
@@ -93,6 +133,9 @@ async def main(token):
                                 for i in range(int(content.split()[1])):
                                     tasks.append(asyncio.create_task(send(data, session, content[msgC:])))
                                 await asyncio.gather(*tasks)
+
+                        elif content.startswith(f"{settings['Prefix']}purge"):
+                            await purge(data, session, int(content.split()[1]))
 
 
 loop = asyncio.get_event_loop()
