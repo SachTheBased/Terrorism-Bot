@@ -4,7 +4,6 @@ import os
 import json
 import aiohttp
 import asyncio
-#import googletrans
 from colorama import Fore
 
 token = input("Enter token: ")  # or you can change this to your token
