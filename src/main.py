@@ -19,10 +19,12 @@ try:
 except:
     os.system('cls')
 
+
 def process_user(user):
     return user.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('?', '').replace('&', '')
 
-async def user():
+
+async def cur_user():
     async with aiohttp.ClientSession() as session:
         while True:
             async with session.get(f"{api}/users/@me", headers=headers) as usr:
@@ -31,6 +33,7 @@ async def user():
                     await asyncio.sleep(usr['retry_after'])
                 else:
                     return await usr.json()
+
 
 async def send(data, session, content):
     while True:
@@ -51,6 +54,7 @@ async def delete_message(data, session):
             else:
                 break
 
+
 async def purge(data, session, amount):
     count = 0
     while True:
@@ -63,18 +67,30 @@ async def purge(data, session, amount):
                 break
 
     for msg in prg:
+        print(msg['author']['id'] == data['d']['author']['id'])
         if msg['author']['id'] == data['d']['author']['id']:
-            async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{msg['id']}",headers=headers) as msg:
-                print(await msg.json())
-                if msg.status == 429:
-                    msg = await msg.json()
-                    await asyncio.sleep(msg['retry_after'])
+            async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{msg['id']}",headers=headers) as del_:
+                print(await del_.json())
+                if del_.status == 429:
+                    del_ = await msg.json()
+                    await asyncio.sleep(del_['retry_after'])
                 else:
                     break
             count+=1
 
         if count >= amount:
             break
+
+
+async def get_user(id, session):
+    while True:
+        async with session.get(f"{api}/users/{id}", headers=headers) as user:
+            if user.status == 429:
+                user = await user.json()
+                await asyncio.sleep(user['retry_after'])
+            else:
+                return await user.json()
+
 
 async def heartbeat(ws, interval):
     while True:
@@ -83,7 +99,7 @@ async def heartbeat(ws, interval):
 
 
 async def main(token):
-    usr = await user()
+    usr = await cur_user()
     print(f"""{Fore.MAGENTA}████████╗███████╗██████╗ ██████╗  ██████╗ ██████╗ ██╗███████╗███╗   ███╗    ███████╗██████╗ 
 {Fore.LIGHTMAGENTA_EX}╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██║██╔════╝████╗ ████║    ██╔════╝██╔══██╗
 {Fore.BLUE}   ██║   █████╗  ██████╔╝██████╔╝██║   ██║██████╔╝██║███████╗██╔████╔██║    ███████╗██████╔╝
@@ -136,6 +152,13 @@ async def main(token):
 
                         elif content.startswith(f"{settings['Prefix']}purge"):
                             await purge(data, session, int(content.split()[1]))
+
+                        elif content.startswith(f"{settings['Prefix']}userinfo"):
+                            await delete_message(data, session)
+                            user_id = process_user(content.split()[1])
+                            user = await get_user(user_id, session)
+                            await send(data, session, f"{vanity}https://SachsSB.sachsthebased.repl.co/user/{user['id']}/{user['username'].replace(' ', '%20')}/test/test/{user['avatar']}")
+
 
 
 loop = asyncio.get_event_loop()
