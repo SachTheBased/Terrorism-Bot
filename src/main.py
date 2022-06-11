@@ -71,13 +71,15 @@ async def purge(data, session, amount):
     for msg in prg:
         print(msg['author']['id'] == data['d']['author']['id'])
         if msg['author']['id'] == data['d']['author']['id']:
-            async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{msg['id']}",headers=headers) as del_:
-                print(await del_.json())
-                if del_.status == 429:
-                    del_ = await msg.json()
-                    await asyncio.sleep(del_['retry_after'])
-                else:
-                    break
+            print(msg)
+            while True:
+                async with session.delete(f"{api}/channels/{data['d']['channel_id']}/messages/{msg['id']}",headers=headers) as del_:
+                    print(del_.status)
+                    if del_.status == 429:
+                        del_ = await msg.json()
+                        await asyncio.sleep(del_['retry_after'])
+                    else:
+                        break
             count+=1
 
         if count >= amount:
