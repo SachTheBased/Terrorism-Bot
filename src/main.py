@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+#omfg
+
 import os
 import json
 import aiohttp
