@@ -1,3 +1,7 @@
 {
-  "Prefix": "$"
+  "Prefix": "$",
+  "Messages": {
+    "Type": "Embeds",
+    "Embeds": {"Vanity": true}
+  }
 }
