@@ -2,13 +2,9 @@
 
 import os
 import json
+import base64
 import aiohttp
 import asyncio
-<<<<<<< HEAD
-=======
-import base64
-#import googletrans
->>>>>>> random shit
 from colorama import Fore
 
 token = input("Enter token: ")  # or you can change this to your token
@@ -98,14 +94,6 @@ async def get_user(id, session):
             else:
                 return await user.json()
 
-async def get_guild(id, session):
-    while True:
-        async with session.get(f"{api}/guilds/{id}") as guild:
-            if guild.status == 429:
-                guild = await guild.json()
-                await asyncio.sleep(guild['retry_after'])
-            else:
-                return await guild.json()
 
 async def heartbeat(ws, interval):
     while True:
@@ -136,15 +124,12 @@ async def main(token):
 
                 elif data["op"] == 0:
                     if data['t'] == 'MESSAGE_CREATE' and data['d']['author']['id'] == usr['id']:
-                        content = data['d']['content'].lower()
+                        content = data['d']['content']
 
                         if content.startswith(f"{settings['Prefix']}help"):
                             await delete_message(data, session)
                             if len(content.split()) == 1:
-                                if settings['Messages']['Type'].lower() == 'embeds':
-                                    await send(data, session, f"{vanity}https://tt.sachsthebased.repl.co/help/_main_.html")
-                                elif settings['Messages']['Type'] == 'blocks':
-                                    await send(data, session,f"```  Terrorism SB\nNuke - nuke commands\nUtils - utility commands\nExploit - exploits```")
+                                await send(data, session, f"{vanity}https://tt.sachsthebased.repl.co/help/_main_.html")
                             else:
                                 if content.split()[1].lower() == 'exploits' or data['d']['content'].split()[1].lower() == 'exp' or data['d']['content'].split()[1].lower() == 'exploit':
                                     await send(data, session, f"{vanity}https://tt.sachsthebased.repl.co/help/exploits.html")
@@ -185,8 +170,6 @@ async def main(token):
                             user = process_user(content.split()[1])
                             token = base64.b64encode(user.encode('ascii')).decode('ascii')
                             await send(data, session, token)
-
-
 
 
 loop = asyncio.get_event_loop()
