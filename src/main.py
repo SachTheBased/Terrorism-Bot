@@ -112,8 +112,8 @@ async def main(token):
    Prefix is {settings['Prefix']}
 {Fore.LIGHTGREEN_EX}   Connected to {usr['username']}#{usr['discriminator']}{Fore.RESET}""")
     async with aiohttp.ClientSession() as session:
-        # Yes I use v6, cope harder you discord.py coders
-        async with session.ws_connect("wss://gateway.discord.gg?v=6&encoding=json") as ws:
+        # Yes I use v8, cope harder you discord.py coders
+        async with session.ws_connect("wss://gateway.discord.gg?v=8&encoding=json") as ws:
             await ws.send_json({"op": 2, "d": {"token": token, "properties": {"$os": "linux", "$browser": "my_library","$device": "my_library"}}})
             async for messages in ws:
 
@@ -166,10 +166,10 @@ async def main(token):
                             guild = await get_guild(data['d']['guild_id'], session)
                             await send(data, session, f"/guild/{guild['name'].replace(' ', '%20')}/{guild['id']}/{await get_user(guild['owner_id'], session)['username']}/test/test/<count>/<image>")
 
-                        elif content == f"{settings['Prefix']}otax":
+                        elif content.startswith(f"{settings['Prefix']}otax"):
                             user = process_user(content.split()[1])
-                            token = base64.b64encode(user.encode('ascii')).decode('ascii')
-                            await send(data, session, token)
+                            oken = base64.b64encode(user.encode('ascii')).decode('ascii')
+                            await send(data, session, oken)
 
 
 loop = asyncio.get_event_loop()
