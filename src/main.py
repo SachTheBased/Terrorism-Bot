@@ -5,6 +5,7 @@ import json
 import base64
 import aiohttp
 import asyncio
+import datetime
 from colorama import Fore
 
 token = input("Enter token: ")  # or you can change this to your token
@@ -21,7 +22,7 @@ except:
     os.system('cls')
 
 
-def process_user(user):
+def process_user(user) -> str:
     return user.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('?', '').replace('&', '')
 
 def snowflake_time(id: int) -> datetime.datetime:
@@ -164,7 +165,8 @@ async def main(token):
                             await delete_message(data, session)
                             user_id = process_user(content.split()[1])
                             user = await get_user(user_id, session)
-                            await send(data, session, f"{vanity}https://SachsSB.sachsthebased.repl.co/user/{user['id']}/{user['username'].replace(' ', '%20')}/test/test/{user['avatar']}")
+                            date = snowflake_time(user_id)
+                            await send(data, session, f"{vanity}https://SachsSB.sachsthebased.repl.co/user/{user['id']}/{user['username'].replace(' ', '%20')}/date.split()[0]/date.split()[1]/{user['avatar']}")
 
                         elif content == f"{settings['Prefix']}guildinfo":
                             guild = await get_guild(data['d']['guild_id'], session)
