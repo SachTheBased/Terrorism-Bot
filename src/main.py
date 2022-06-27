@@ -24,6 +24,10 @@ except:
 def process_user(user):
     return user.replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('?', '').replace('&', '')
 
+def snowflake_time(id: int) -> datetime.datetime:
+    timestamp = ((id >> 22) + 1420070400000) / 1000
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+
 
 async def cur_user():
     async with aiohttp.ClientSession() as session:
